@@ -11,10 +11,7 @@ const userMiddleware = require('../middleware/users.js');
 
 router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
     db.query(
-        `SELECT * FROM user WHERE LOWER(login) = LOWER(${db.escape(
-          req.body.login
-        )});`,
-
+        `SELECT * FROM user WHERE LOWER(login) = LOWER(${db.escape(req.body.login)});`,
         (err, result) => {
           if (result.length) {
             return res.status(409).send({
@@ -30,9 +27,7 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
               } else {
                 // has hashed pw => add to database
                 db.query(
-                  `INSERT INTO user (login, mdp) VALUES (${db.escape(
-                    req.body.login
-                  )}, ${db.escape(hash)})`,
+                  `INSERT INTO user (prenom,nom,login,mdp,telephone,email,id_role) VALUES (${db.escape(req.body.prenom)},${db.escape(req.body.nom)},${db.escape(req.body.login)},${db.escape(hash)},${db.escape(req.body.telephone)},${db.escape(req.body.email)}, 2)`,
                   (err, result) => {
                     if (err) {
                       throw err;
@@ -65,15 +60,17 @@ router.post('/login', (req, res, next) => {
             });
           }
           if (!result.length) {
-            console.log('req.body.mdp');
             return res.status(401).send({
               msg: 'Username or password is incorrect!'
             });
           }
+          if (result[0].id_role !== 2) {
+            return res.status(401).send({
+              msg: 'Ce nest pas un compte utilisateur'
+            });
+          }
           // check password
-          bcrypt.compare(
-            req.body.mdp,
-            result[0]['mdp'],
+          bcrypt.compare(req.body.mdp, result[0]['mdp'],
             (bErr, bResult) => {
               // wrong password
               if (bErr) {
@@ -88,14 +85,13 @@ router.post('/login', (req, res, next) => {
                     id_user: result[0].id_user
                   },
                   'SECRETKEY', {
-                    expiresIn: '100m'
+                    expiresIn: '5m'
                   }
                 );
                 return res.status(200).send({
                   msg: '200',
                   token,
                   user: result[0], 
-                
                 });
               }
               return res.status(401).send({
@@ -115,7 +111,7 @@ router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
   });
 
 router.get('/books', (req,res,next) => {
-    db.query(`SELECT * FROM books where id_commandebooks IS NULL` ,
+    db.query(`SELECT * FROM books` ,
         (err, result) => {
         // user does not exists
             if (err) {
@@ -154,7 +150,25 @@ router.get('/books/:id', (req,res,next) => {
 });
 
 router.get('/booksUser/:id', (req,res,next) => {
-  db.query(`SELECT * FROM books where id_commandebooks = ${req.params.id}`,
+  db.query(`Select * from books,user,commande where books.id_commandebooks = commande.id_Commande and commande.id_userscommande = user.id_user and user.id_user = ${req.params.id}`,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              book: result
+          });}
+      }
+  )
+});
+router.get('/commande/:id', (req,res,next) => {
+  db.query(`Select * from commande where id_userscommande = ${req.params.id}`,
       (err, result) => {
       // user does not exists
           if (err) {
