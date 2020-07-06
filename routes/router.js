@@ -180,7 +180,7 @@ router.get('/commande/:id', (req,res,next) => {
           else {
               return res.status(200).send({
               msg: 'Transfert effectué !',
-              book: result
+              commande: result
           });}
       }
   )
