@@ -85,7 +85,7 @@ router.post('/login', (req, res, next) => {
                     id_user: result[0].id_user
                   },
                   'SECRETKEY', {
-                    expiresIn: '5m'
+                    expiresIn: '1000m'
                   }
                 );
                 return res.status(200).send({
@@ -110,6 +110,7 @@ router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
     });  
   });
 
+
 router.get('/books', (req,res,next) => {
     db.query(`SELECT * FROM books` ,
         (err, result) => {
@@ -121,10 +122,16 @@ router.get('/books', (req,res,next) => {
                 });
             }
             else {
-                return res.status(200).send({
-                msg: 'Transfert effectué !',
-                book: result
-            });}
+              for(i = 0; i < result.length; i++) {
+                  var buffer = new Buffer(result[i].image, 'binary' );
+                  var test = buffer.toString('base64');
+                  result[i].image = test
+              }
+              return res.status(200).send({
+                    msg: 'Transfert effectué !',
+                    book: result
+                  })
+            ;}
         
         }
     )
@@ -141,10 +148,22 @@ router.get('/books/:id', (req,res,next) => {
               });
           }
           else {
-              return res.status(200).send({
-              msg: 'Transfert effectué !',
-              book: result
-          });}
+            for(i = 0; i < result.length; i++) {
+                var buffer = new Buffer(result[i].image, 'binary' );
+                var test = buffer.toString('base64');
+                result[i].image = test
+            }
+            return res.status(200).send({
+                  msg: 'Transfert effectué !',
+                  book: result
+                })
+          ;}
+          // else {
+          //     return res.status(200).send({
+          //     msg: 'Transfert effectué !',
+          //     book: result
+          // });}
+          
       }
   )
 });
@@ -160,10 +179,16 @@ router.get('/booksUser/:id', (req,res,next) => {
               });
           }
           else {
-              return res.status(200).send({
-              msg: 'Transfert effectué !',
-              book: result
-          });}
+            for(i = 0; i < result.length; i++) {
+                var buffer = new Buffer(result[i].image, 'binary' );
+                var test = buffer.toString('base64');
+                result[i].image = test
+            }
+            return res.status(200).send({
+                  msg: 'Transfert effectué !',
+                  book: result
+                })
+          ;}
       }
   )
 });
