@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 
 const db = require('../lib/db.js');
 const userMiddleware = require('../middleware/users.js');
+const moment = require('moment')
 
 router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
     db.query(
@@ -103,6 +104,42 @@ router.post('/login', (req, res, next) => {
       );
 });
 
+router.post('/commandeBooks', (req, res, next) => {
+  //console.log('commande')
+  db.query(
+    `INSERT INTO commande (nom_Commande,date_commande,date_livraison,reference,etat,adresse,id_userscommande) VALUES ('commande','${(moment(new Date()).format('YYYY-MM-DD hh:mm:ss'))}','${(req.body.datelivraison)}','reference','Traitement','${(req.body.adresselivraison)}', ${(req.body.id_user)})`,
+    (err, result) => {
+      if (err) {
+        throw err;
+        return res.status(400).send({
+          msg: err
+        });
+      }
+      return res.status(200).send({
+        msg: 'Registered!',
+        data: result
+      });
+    }
+  );
+});
+
+router.post('/commandeBooksid/:id', (req, res, next) => {
+  //console.log('commande')
+  db.query(
+    `UPDATE books SET id_commandebooks = ${(req.body.idcommandeBooks)} WHERE id_book = ${req.params.id} `,
+    (err, result) => {
+      if (err) {
+        throw err;
+        return res.status(400).send({
+          msg: err
+        });
+      }
+      return res.status(200).send({
+        msg: 'Registered!'
+      });
+    }
+  );
+});
 router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
     res.send({
       msg : 'Token Valid',
