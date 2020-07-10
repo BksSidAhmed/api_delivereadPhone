@@ -48,7 +48,6 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
       );
 });
 
-
 router.post('/login', (req, res, next) => {
     db.query(
         `SELECT * FROM user WHERE login = ${db.escape(req.body.login)};`,
@@ -104,10 +103,10 @@ router.post('/login', (req, res, next) => {
       );
 });
 
-router.post('/commandeBooks', (req, res, next) => {
+router.post('/commandeBooks/:id', (req, res, next) => {
   //console.log('commande')
   db.query(
-    `INSERT INTO commande (nom_Commande,date_commande,date_livraison,reference,etat,adresse,id_userscommande) VALUES ('commande','${(moment(new Date()).format('YYYY-MM-DD hh:mm:ss'))}','${(req.body.datelivraison)}','reference','Traitement','${(req.body.adresselivraison)}', ${(req.body.id_user)})`,
+    `SELECT id_commandebooks FROM books WHERE id_book = ${req.params.id};`,
     (err, result) => {
       if (err) {
         throw err;
@@ -115,31 +114,88 @@ router.post('/commandeBooks', (req, res, next) => {
           msg: err
         });
       }
-      return res.status(200).send({
-        msg: 'Registered!',
-        data: result
-      });
-    }
-  );
+      if(result[0].id_commandebooks !== null) {
+        return res.status(400).send({
+          msg: 'Le livre viens tout juste etre reservé',
+        });
+      }
+        db.query(
+          `INSERT INTO commande (nom_Commande,date_commande,date_livraison,reference,etat,adresse,id_userscommande) VALUES ('commande','${(moment(new Date()).format('YYYY-MM-DD hh:mm:ss'))}','${(req.body.datelivraison)}','reference','Traitement','${(req.body.adresselivraison)}', ${(req.body.id_user)})`,
+          (err, result) => {
+            if (err) {
+              throw err;
+              return res.status(400).send({
+                msg: err
+              });
+            }
+            return res.status(200).send({
+              msg: 'Registered!',
+              data: result
+            });
+          }
+      
+        );
+      }
+  )
 });
 
 router.post('/commandeBooksid/:id', (req, res, next) => {
   //console.log('commande')
   db.query(
-    `UPDATE books SET id_commandebooks = ${(req.body.idcommandeBooks)} WHERE id_book = ${req.params.id} `,
-    (err, result) => {
+    `SELECT id_commandebooks FROM books WHERE id_book = ${req.params.id};`,
+    (err, result_id_commandebooks) => {
       if (err) {
         throw err;
         return res.status(400).send({
           msg: err
         });
       }
-      return res.status(200).send({
-        msg: 'Registered!'
-      });
+      if(result_id_commandebooks[0].id_commandebooks !== null) {
+        if (err) {
+          throw err;
+          return res.status(400).send({
+            msg: err + 'Ce livre viens etre commandé '
+          });
+        }
+      }
+      else {
+        db.query(
+          `UPDATE books SET id_commandebooks = ${(req.body.idcommandeBooks)} WHERE id_book = ${req.params.id} `,
+          (err, result) => {
+            if (err) {
+              throw err;
+              return res.status(400).send({
+                msg: err
+              });
+            }
+            else{
+              db.query(
+                `SELECT ReferenceBook FROM books WHERE id_book = ${req.params.id};`,
+                (err, result) => {
+                  if (err) {
+                    throw err;
+                    return res.status(400).send({
+                      msg: err
+                    });
+                  }
+                  else {
+                    db.query(
+                      `UPDATE commande SET ReferenceBook = ${(result[0].ReferenceBook)} WHERE id_Commande = ${(req.body.idcommandeBooks)} `,
+                    )
+                  }
+                },
+              )
+            }
+            return res.status(200).send({
+              msg: 'Success!'
+            });
+          },
+        );
+      }
     }
-  );
+  )
 });
+
 router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
     res.send({
       msg : 'Token Valid',
