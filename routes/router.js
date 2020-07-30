@@ -286,9 +286,10 @@ router.get('/booksUser/:id', (req,res,next) => {
   )
 });
 router.get('/commande/:id', (req,res,next) => {
-  db.query(`Select * from commande where id_userscommande = ${req.params.id}`,
+  db.query(`Select * from commande where ReferenceBook = ${req.params.id}`,
       (err, result) => {
       // user does not exists
+      console.log(result);
           if (err) {
               throw err;
               return res.status(400).send({
