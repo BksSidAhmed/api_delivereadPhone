@@ -48,6 +48,44 @@ router.post('/sign-up', userMiddleware.validateRegister, (req, res, next) => {
       );
 });
 
+router.post('/sign-up/livreur', userMiddleware.validateRegister, (req, res, next) => {
+    db.query(
+        `SELECT * FROM user WHERE LOWER(login) = LOWER(${db.escape(req.body.login)});`,
+        (err, result) => {
+          if (result.length) {
+            return res.status(409).send({
+              msg: 'This username is already in use!'
+            });
+          } else {
+            // username is available
+            bcrypt.hash(req.body.mdp, 10, (err, hash) => {
+              if (err) {
+                return res.status(500).send({
+                  msg: err
+                });
+              } else {
+                // has hashed pw => add to database
+                db.query(
+                  `INSERT INTO user (prenom,nom,login,mdp,telephone,email,id_role) VALUES (${db.escape(req.body.prenom)},${db.escape(req.body.nom)},${db.escape(req.body.login)},${db.escape(hash)},${db.escape(req.body.telephone)},${db.escape(req.body.email)}, 4)`,
+                  (err, result) => {
+                    if (err) {
+                      throw err;
+                      return res.status(400).send({
+                        msg: err
+                      });
+                    }
+                    return res.status(201).send({
+                      msg: 'Registered!'
+                    });
+                  }
+                );
+              }
+            });
+          }
+        }
+      );
+});
+
 router.post('/login', (req, res, next) => {
     db.query(
         `SELECT * FROM user WHERE login = ${db.escape(req.body.login)};`,
@@ -64,11 +102,11 @@ router.post('/login', (req, res, next) => {
               msg: 'Username or password is incorrect!'
             });
           }
-          if (result[0].id_role !== 2) {
-            return res.status(401).send({
-              msg: 'Ce nest pas un compte utilisateur'
-            });
-          }
+          // if (result[0].id_role !== 2) {
+          //   return res.status(401).send({
+          //     msg: 'Ce nest pas un compte utilisateur'
+          //   });
+          // }
           // check password
           bcrypt.compare(req.body.mdp, result[0]['mdp'],
             (bErr, bResult) => {
@@ -85,7 +123,7 @@ router.post('/login', (req, res, next) => {
                     id_user: result[0].id_user
                   },
                   'SECRETKEY', {
-                    expiresIn: '1000m'
+                    expiresIn: '1m'
                   }
                 );
                 return res.status(200).send({
@@ -300,6 +338,44 @@ router.get('/commande/:id', (req,res,next) => {
               return res.status(200).send({
               msg: 'Transfert effectué !',
               commande: result
+          });}
+      }
+  )
+});
+router.get('/user/:id', (req,res,next) => {
+  db.query(`Select * from user where id_user = ${req.params.id}`,
+      (err, result) => {
+      // user does not exists
+      console.log(result);
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
+          });}
+      }
+  )
+});
+router.post('/user/:dataUser/:id', (req,res,next) => {
+  db.query(`update user set ${req.params.dataUser} = '${req.body.valDataUser}' where id_user = ${req.params.id}`,
+      (err, result) => {
+      // user does not exists
+      console.log(result);
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
           });}
       }
   )
