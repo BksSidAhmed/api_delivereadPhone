@@ -142,7 +142,7 @@ router.post('/login', (req, res, next) => {
 });
 
 router.post('/commandeBooks/:id', (req, res, next) => {
-  //console.log('commande')
+console.log('commande')
   db.query(
     `SELECT id_commandebooks FROM books WHERE id_book = ${req.params.id};`,
     (err, result) => {
@@ -158,7 +158,7 @@ router.post('/commandeBooks/:id', (req, res, next) => {
         });
       }
         db.query(
-          `INSERT INTO commande (nom_Commande,date_commande,date_livraison,reference,etat,adresse,id_userscommande) VALUES ('commande','${(moment(new Date()).format('YYYY-MM-DD hh:mm:ss'))}','${(req.body.datelivraison)}','reference','Traitement','${(req.body.adresselivraison)}', ${(req.body.id_user)})`,
+          `INSERT INTO commande (nom_Commande,date_commande,date_livraison,reference,etat,adresse,id_userscommande) VALUES ('commande','${(moment(new Date()).format('YYYY-MM-DD hh:mm:ss'))}','${(req.body.datelivraison)}','reference','Commande en cours de Traitement','${(req.body.adresselivraison)}', ${(req.body.id_user)})`,
           (err, result) => {
             if (err) {
               throw err;
