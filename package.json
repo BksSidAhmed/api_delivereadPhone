@@ -1,0 +1,35 @@
+{
+  "name": "api_delivereadPhone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "filereader": "^0.10.3",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.27.0",
+    "mysql": "^2.18.1",
+    "uuid": "^8.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BksSidAhmed/api_delivereadPhone.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BksSidAhmed/api_delivereadPhone/issues"
+  },
+  "homepage": "https://github.com/BksSidAhmed/api_delivereadPhone#readme"
+}
