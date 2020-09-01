@@ -123,7 +123,7 @@ router.post('/login', (req, res, next) => {
                     id_user: result[0].id_user
                   },
                   'SECRETKEY', {
-                    expiresIn: '1m'
+                    expiresIn: '1000m'
                   }
                 );
                 return res.status(200).send({
@@ -142,7 +142,6 @@ router.post('/login', (req, res, next) => {
 });
 
 router.post('/commandeBooks/:id', (req, res, next) => {
-console.log('commande')
   db.query(
     `SELECT id_commandebooks FROM books WHERE id_book = ${req.params.id};`,
     (err, result) => {
@@ -380,5 +379,117 @@ router.post('/user/:dataUser/:id', (req,res,next) => {
       }
   )
 });
+router.get('/commentaire/:id_user/:id_book', (req,res,next) => {
+  db.query(`SELECT * FROM commentaire WHERE id_user = ${req.params.id_user} AND id_book = ${req.params.id_book} ` ,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          return res.status(200).send({
+                  msg: 'Transfert effectué !',
+                  commentaire: result
+          })
+          ;
+      
+      }
+  )
+});
 
+router.get('/commentaireAll/:id_book', (req,res,next) => {
+  db.query(`SELECT * FROM commentaire WHERE id_book = ${req.params.id_book}` ,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          return res.status(200).send({
+                  msg: 'Transfert effectué !',
+                  commentaire: result
+          })
+          ;
+      
+      }
+  )
+});
+
+router.post('/starUser', (req,res,next) => {
+  db.query(`INSERT INTO commentaire (note, id_user,id_book) VALUES (${req.body.note}, ${req.body.id_user}, ${req.body.id_book}) `,    
+  (err, result) => {
+      // user does not exists
+      console.log(result);
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
+          });}
+      }
+  )
+});
+
+router.get('/statStar/:id_book', (req,res,next) => {
+  db.query(`SELECT SUM(note/5) AS note FROM commentaire WHERE id_book = ${req.params.id_book} `,    
+  (err, result) => {
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              note: result
+          });}
+      }
+  )
+});
+router.get('/statStarUser/:id_book', (req,res,next) => {
+  db.query(`SELECT COUNT(id_commentaire) AS nombreVotant FROM commentaire WHERE id_book = ${req.params.id_book} `,    
+  (err, result) => {
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              note: result
+          });}
+      }
+  )
+});
+// router.post('/commentaireUser', (req,res,next) => {
+//   db.query(`INSERT INTO commentaire (commentaire) VALUES (${req.body.commentaie} WHERE id_user = ${req.body.id_user} AND id_book = ${req.body.id_book}) `,
+//       (err, result) => {
+//       // user does not exists
+//       console.log(result);
+//           if (err) {
+//               throw err;
+//               return res.status(400).send({
+//                   msg: err
+//               });
+//           }
+//           else {
+//               return res.status(200).send({
+//               msg: 'Transfert effectué !',
+//               user: result
+//           });}
+//       }
+//   )
+// });
 module.exports = router;
