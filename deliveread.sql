@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le :  mar. 01 sep. 2020 à 15:40
+-- Généré le :  mer. 02 sep. 2020 à 14:14
 -- Version du serveur :  5.7.26
 -- Version de PHP :  7.1.29
 
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `commentaire` (
   `id_user` int(255) NOT NULL,
   `id_book` int(255) NOT NULL,
   PRIMARY KEY (`id_commentaire`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Déchargement des données de la table `commentaire`
@@ -178,7 +178,18 @@ INSERT INTO `commentaire` (`id_commentaire`, `commentaire`, `note`, `id_user`, `
 (7, 'Merci sidi tes le plus fort', 4, 30, 3),
 (8, NULL, 5, 30, 4),
 (9, NULL, 3, 30, 5),
-(10, NULL, 5, 30, 2);
+(10, NULL, 5, 30, 2),
+(11, 'Jk', 5, 30, 2),
+(12, 'Jl', 5, 30, 2),
+(13, '', 5, 30, 2),
+(14, '', 5, 30, 2),
+(15, '', 4, 30, 2),
+(16, '', 1, 30, 2),
+(17, 'Mlihh', 5, 30, 2),
+(18, 'Llm', 5, 30, 2),
+(19, 'Kkkk', 5, 30, 8),
+(20, 'Nkkl', 5, 30, 9),
+(21, 'Trop bien', 3, 30, 6);
 
 -- --------------------------------------------------------
 
