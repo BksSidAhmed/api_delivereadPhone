@@ -421,7 +421,7 @@ router.get('/commentaireAll/:id_book', (req,res,next) => {
 });
 
 router.post('/starUser', (req,res,next) => {
-  db.query(`INSERT INTO commentaire (commentaire,note, id_user,id_book) VALUES ('${req.body.commentaire}',${req.body.note}, ${req.body.id_user}, ${req.body.id_book}) `,    
+  db.query(`INSERT INTO commentaire (commentaire,note, id_user,id_book) VALUES ("${req.body.commentaire}",${req.body.note}, ${req.body.id_user}, ${req.body.id_book}) `,    
   (err, result) => {
       // user does not exists
       console.log(result);
