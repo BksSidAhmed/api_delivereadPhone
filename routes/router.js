@@ -379,6 +379,7 @@ router.post('/user/:dataUser/:id', (req,res,next) => {
       }
   )
 });
+
 router.get('/commentaire/:id_user/:id_book', (req,res,next) => {
   db.query(`SELECT * FROM commentaire WHERE id_user = ${req.params.id_user} AND id_book = ${req.params.id_book} ` ,
       (err, result) => {
@@ -400,7 +401,7 @@ router.get('/commentaire/:id_user/:id_book', (req,res,next) => {
 });
 
 router.get('/commentaireAll/:id_book', (req,res,next) => {
-  db.query(`SELECT * FROM commentaire WHERE id_book = ${req.params.id_book}` ,
+  db.query(`Select user.login, commentaire.commentaire,commentaire.note from user, commentaire where commentaire.id_user=user.id_user AND commentaire.id_book= ${req.params.id_book}`,
       (err, result) => {
       // user does not exists
           if (err) {
@@ -420,7 +421,7 @@ router.get('/commentaireAll/:id_book', (req,res,next) => {
 });
 
 router.post('/starUser', (req,res,next) => {
-  db.query(`INSERT INTO commentaire (note, id_user,id_book) VALUES (${req.body.note}, ${req.body.id_user}, ${req.body.id_book}) `,    
+  db.query(`INSERT INTO commentaire (commentaire,note, id_user,id_book) VALUES ('${req.body.commentaire}',${req.body.note}, ${req.body.id_user}, ${req.body.id_book}) `,    
   (err, result) => {
       // user does not exists
       console.log(result);
@@ -440,7 +441,7 @@ router.post('/starUser', (req,res,next) => {
 });
 
 router.get('/statStar/:id_book', (req,res,next) => {
-  db.query(`SELECT SUM(note/5) AS note FROM commentaire WHERE id_book = ${req.params.id_book} `,    
+  db.query(`SELECT COUNT(id_commentaire) AS nombreVotant FROM commentaire WHERE id_book = ${req.params.id_book} `,    
   (err, result) => {
           if (err) {
               throw err;
@@ -449,13 +450,27 @@ router.get('/statStar/:id_book', (req,res,next) => {
               });
           }
           else {
-              return res.status(200).send({
-              msg: 'Transfert effectué !',
-              note: result
-          });}
+            console.log(result[0].nombreVotant)
+            db.query(`SELECT SUM(note/${result[0].nombreVotant}) AS note FROM commentaire WHERE id_book = ${req.params.id_book} `,    
+            (err, result) => {
+                    if (err) {
+                        throw err;
+                        return res.status(400).send({
+                            msg: err
+                        });
+                    }
+                    else {
+                        return res.status(200).send({
+                        msg: 'Transfert effectué !',
+                        note: result
+                    });}
+                }
+            )
+        }
       }
   )
 });
+
 router.get('/statStarUser/:id_book', (req,res,next) => {
   db.query(`SELECT COUNT(id_commentaire) AS nombreVotant FROM commentaire WHERE id_book = ${req.params.id_book} `,    
   (err, result) => {
@@ -473,23 +488,5 @@ router.get('/statStarUser/:id_book', (req,res,next) => {
       }
   )
 });
-// router.post('/commentaireUser', (req,res,next) => {
-//   db.query(`INSERT INTO commentaire (commentaire) VALUES (${req.body.commentaie} WHERE id_user = ${req.body.id_user} AND id_book = ${req.body.id_book}) `,
-//       (err, result) => {
-//       // user does not exists
-//       console.log(result);
-//           if (err) {
-//               throw err;
-//               return res.status(400).send({
-//                   msg: err
-//               });
-//           }
-//           else {
-//               return res.status(200).send({
-//               msg: 'Transfert effectué !',
-//               user: result
-//           });}
-//       }
-//   )
-// });
+
 module.exports = router;
