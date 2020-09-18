@@ -153,7 +153,7 @@ router.post('/commandeBooks/:id', (req, res, next) => {
       }
       if(result[0].id_commandebooks !== null) {
         return res.status(400).send({
-          msg: 'Le livre viens tout juste etre reservé',
+          msg: "Le livre viens tout juste d'etre reservé",
         });
       }
         db.query(
@@ -177,7 +177,6 @@ router.post('/commandeBooks/:id', (req, res, next) => {
 });
 
 router.post('/commandeBooksid/:id', (req, res, next) => {
-  //console.log('commande')
   db.query(
     `SELECT id_commandebooks FROM books WHERE id_book = ${req.params.id};`,
     (err, result_id_commandebooks) => {
@@ -242,6 +241,7 @@ router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
 
 
 router.get('/books', (req,res,next) => {
+  console.log('ici')
     db.query(`SELECT * FROM books` ,
         (err, result) => {
         // user does not exists
@@ -265,6 +265,32 @@ router.get('/books', (req,res,next) => {
         
         }
     )
+});
+
+router.get('/bookSearch/:text', (req,res,next) => {
+  db.query(`SELECT * FROM books WHERE SOUNDEX(titre) = SOUNDEX("${req.params.text}") OR SOUNDEX(auteur) = SOUNDEX("${req.params.text}") OR auteur LIKE "${req.params.text}%" OR titre LIKE "${req.params.text}%"` ,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+            for(i = 0; i < result.length; i++) {
+                var buffer = new Buffer(result[i].image, 'binary' );
+                var test = buffer.toString('base64');
+                result[i].image = test
+            }
+            return res.status(200).send({
+                  msg: 'Transfert effectué !',
+                  book: result
+                })
+          ;}
+      
+      }
+  )
 });
 
 router.get('/books/:id', (req,res,next) => {
@@ -326,7 +352,6 @@ router.get('/commande/:id', (req,res,next) => {
   db.query(`Select * from commande where ReferenceBook = ${req.params.id}`,
       (err, result) => {
       // user does not exists
-      console.log(result);
           if (err) {
               throw err;
               return res.status(400).send({
@@ -345,7 +370,6 @@ router.get('/user/:id', (req,res,next) => {
   db.query(`Select * from user where id_user = ${req.params.id}`,
       (err, result) => {
       // user does not exists
-      console.log(result);
           if (err) {
               throw err;
               return res.status(400).send({
@@ -364,7 +388,6 @@ router.post('/user/:dataUser/:id', (req,res,next) => {
   db.query(`update user set ${req.params.dataUser} = '${req.body.valDataUser}' where id_user = ${req.params.id}`,
       (err, result) => {
       // user does not exists
-      console.log(result);
           if (err) {
               throw err;
               return res.status(400).send({
@@ -424,7 +447,6 @@ router.post('/starUser', (req,res,next) => {
   db.query(`INSERT INTO commentaire (commentaire,note, id_user,id_book) VALUES ("${req.body.commentaire}",${req.body.note}, ${req.body.id_user}, ${req.body.id_book}) `,    
   (err, result) => {
       // user does not exists
-      console.log(result);
           if (err) {
               throw err;
               return res.status(400).send({
@@ -450,7 +472,6 @@ router.get('/statStar/:id_book', (req,res,next) => {
               });
           }
           else {
-            console.log(result[0].nombreVotant)
             db.query(`SELECT SUM(note/${result[0].nombreVotant}) AS note FROM commentaire WHERE id_book = ${req.params.id_book} `,    
             (err, result) => {
                     if (err) {
