@@ -241,7 +241,6 @@ router.get('/secret-route', userMiddleware.isLoggedIn, (req, res, next) => {
 
 
 router.get('/books', (req,res,next) => {
-  console.log('ici')
     db.query(`SELECT * FROM books` ,
         (err, result) => {
         // user does not exists
