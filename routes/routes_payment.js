@@ -52,10 +52,10 @@ router.delete('/delSubscription/:id', (req, res) => {
 router.post('/createTokens/', (req, res) => {
     return stripe.tokens.create({
         card: {
-          number: '4242424242424242',
-          exp_month: 9,
-          exp_year: 2021,
-          cvc: '315',
+            number: req.body.number,
+            exp_month: req.body.month,
+            exp_year: req.body.years,
+            cvc: req.body.cvc,
         },  
     }).then(result => res.status(200).json(result)); 
 });
@@ -69,6 +69,5 @@ router.post('/doPayment/', (req, res) => {
         description: 'Caution',  
     }).then(result => res.status(200).json(result)); 
 });
-
 
 module.exports = router;

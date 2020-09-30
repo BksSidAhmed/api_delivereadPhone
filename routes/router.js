@@ -365,6 +365,7 @@ router.get('/commande/:id', (req,res,next) => {
       }
   )
 });
+
 router.get('/user/:id', (req,res,next) => {
   db.query(`Select * from user where id_user = ${req.params.id}`,
       (err, result) => {
@@ -383,8 +384,49 @@ router.get('/user/:id', (req,res,next) => {
       }
   )
 });
+
 router.post('/user/:dataUser/:id', (req,res,next) => {
   db.query(`update user set ${req.params.dataUser} = '${req.body.valDataUser}' where id_user = ${req.params.id}`,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
+          });}
+      }
+  )
+});
+
+// Post idAbonnement
+router.post('/userAbonnementpost/:id', (req,res,next) => {
+  db.query(`update user set id_abonnement  = '${req.body.idAbonnement}' where id_user = ${req.params.id}`,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
+          });}
+      }
+  )
+});
+
+//Get idAbonnement
+router.get('/userAbonnementget/:id', (req,res,next) => {
+  db.query(`Select id_abonnement from user where id_user = ${req.params.id}`,
       (err, result) => {
       // user does not exists
           if (err) {
