@@ -398,7 +398,6 @@ db.query(`SELECT * FROM books where id_book = ${req.params.id}`,
 });
 
 router.get('/booksUser/:id', (req,res,next) => {
-  console.log('test')
 db.query(`Select * from books,user,commande where books.id_commandebooks = commande.id_Commande and commande.id_userscommande = user.id_user and user.id_user = ${req.params.id}`,
     (err, result) => {
     // user does not exists
