@@ -582,6 +582,69 @@ router.get('/commande/:id', (req,res,next) => {
       }
   )
 });
+//Retourner toutes les nouvelles commandes
+router.get('/commandes', (req,res,next) => {
+  db.query(`SELECT * FROM commande,books where commande.etat='Commande en cours de Traitement' AND commande.id_Commande=books.id_commandebooks`,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+            for(i = 0; i < result.length; i++) {
+                var buffer = new Buffer(result[i].image, 'binary' );
+                var test = buffer.toString('base64');
+                result[i].image = test
+            }
+            return res.status(200).send({
+                  msg: 'Transfert effectué !',
+                  book: result
+                })
+          ;}
+          // else {
+          //     return res.status(200).send({
+          //     msg: 'Transfert effectué !',
+          //     book: result
+          // });}
+          
+      }
+  )
+});
+
+//Retourner toutes les nouvelles commandes
+router.get('/cmdCliUser/:id', (req,res,next) => {
+  db.query(`SELECT * FROM commande,books,user where commande.id_Commande= ${req.params.id} AND commande.id_Commande=books.id_commandebooks AND commande.id_userscommande= user.id_user`,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+            for(i = 0; i < result.length; i++) {
+                var buffer = new Buffer(result[i].image, 'binary' );
+                var test = buffer.toString('base64');
+                result[i].image = test
+            }
+            return res.status(200).send({
+                  msg: 'Transfert effectué !',
+                  book: result
+                })
+          ;}
+          // else {
+          //     return res.status(200).send({
+          //     msg: 'Transfert effectué !',
+          //     book: result
+          // });}
+          
+      }
+  )
+});
 
                                                                             ////ABONNEMENT
 //POST
