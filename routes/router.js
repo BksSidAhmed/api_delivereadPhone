@@ -88,6 +88,44 @@ router.post('/sign-up/livreur', userMiddleware.validateRegister, (req, res, next
     );
 });
 
+// router.post('/sign-up/admin', userMiddleware.validateRegister, (req, res, next) => {
+//   db.query(
+//       `SELECT * FROM user WHERE LOWER(login) = LOWER(${db.escape(req.body.login)});`,
+//       (err, result) => {
+//         if (result.length) {
+//           return res.status(409).send({
+//             msg: 'This username is already in use!'
+//           });
+//         } else {
+//           // username is available
+//           bcrypt.hash(req.body.mdp, 10, (err, hash) => {
+//             if (err) {
+//               return res.status(500).send({
+//                 msg: err
+//               });
+//             } else {
+//               // has hashed pw => add to database
+//               db.query(
+//                 `INSERT INTO user (prenom,nom,login,mdp,telephone,email,id_role) VALUES (${db.escape(req.body.prenom)},${db.escape(req.body.nom)},${db.escape(req.body.login)},${db.escape(hash)},${db.escape(req.body.telephone)},${db.escape(req.body.email)}, 1)`,
+//                 (err, result) => {
+//                   if (err) {
+//                     throw err;
+//                     return res.status(400).send({
+//                       msg: err
+//                     });
+//                   }
+//                   return res.status(201).send({
+//                     msg: 'Registered!'
+//                   });
+//                 }
+//               );
+//             }
+//           });
+//         }
+//       }
+//     );
+// });
+
 router.post('/login', (req, res, next) => {
   db.query(
       `SELECT * FROM user WHERE login = ${db.escape(req.body.login)};`,
@@ -563,6 +601,49 @@ router.post('/commandeBooksid/:id', (req, res, next) => {
     }
   )
 });
+
+//je choisie cette commande
+router.post('/commandeOfLivreur/:idLivreur/:idCommande', (req,res,next) => {
+  db.query(`update commande set id_livreur = '${req.params.idLivreur}' where id_Commande = ${req.params.idCommande}`,
+      (err, result) => {
+      // user does not exists
+      console.log(result);
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
+          });}
+      }
+  )
+});
+
+//je choisie cette commande
+router.post('/commandeOfAdmin/:idCommande', (req,res,next) => {
+  db.query(`update commande set etat = 'Commande donnée au livreur' where id_Commande = ${req.params.idCommande}`,
+      (err, result) => {
+      // user does not exists
+      console.log(result);
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
+          });}
+      }
+  )
+});
+
 //GET
 router.get('/commande/:id', (req,res,next) => {
   db.query(`Select * from commande where ReferenceBook = ${req.params.id}`,
@@ -610,6 +691,32 @@ router.get('/commandes', (req,res,next) => {
           //     book: result
           // });}
           
+      }
+  )
+});
+
+//Retourner toutes commande pour l'admin
+router.get('/commandeAdmin', (req,res,next) => {
+  db.query(`SELECT * FROM commande,books where commande.id_livreur IS NOT NULL AND commande.id_Commande=books.id_commandebooks`,
+      (err, result) => {
+      // user does not exists
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+            for(i = 0; i < result.length; i++) {
+                var buffer = new Buffer(result[i].image, 'binary' );
+                var test = buffer.toString('base64');
+                result[i].image = test
+            }
+            return res.status(200).send({
+                  msg: 'Transfert effectué !',
+                  book: result
+                })
+          ;}          
       }
   )
 });
