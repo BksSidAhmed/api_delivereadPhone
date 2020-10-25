@@ -624,8 +624,50 @@ router.post('/commandeOfLivreur/:idLivreur/:idCommande', (req,res,next) => {
 });
 
 //je choisie cette commande
+router.post('/commandeOfLivreurClient/:idLivreur/:idCommande', (req,res,next) => {
+  db.query(`update commande set etat = 'Phase de lecture' where id_Commande = ${req.params.idCommande}`,
+      (err, result) => {
+      // user does not exists
+      console.log(result);
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
+          });}
+      }
+  )
+});
+
+//je choisie cette commande
 router.post('/commandeOfAdmin/:idCommande', (req,res,next) => {
-  db.query(`update commande set etat = 'Commande donnée au livreur' where id_Commande = ${req.params.idCommande}`,
+  db.query(`update commande set etat = 'Commande remis au livreur' where id_Commande = ${req.params.idCommande}`,
+      (err, result) => {
+      // user does not exists
+      console.log(result);
+          if (err) {
+              throw err;
+              return res.status(400).send({
+                  msg: err
+              });
+          }
+          else {
+              return res.status(200).send({
+              msg: 'Transfert effectué !',
+              user: result
+          });}
+      }
+  )
+});
+
+//je choisie cette commande
+router.post('/commandeOfBookRendu/:idCommande', (req,res,next) => {
+  db.query(`update commande set etat = 'Livre rendu' where id_Commande = ${req.params.idCommande}`,
       (err, result) => {
       // user does not exists
       console.log(result);
@@ -665,7 +707,7 @@ router.get('/commande/:id', (req,res,next) => {
 });
 //Retourner toutes les nouvelles commandes
 router.get('/commandes', (req,res,next) => {
-  db.query(`SELECT * FROM commande,books where commande.etat='Commande en cours de Traitement' AND commande.id_Commande=books.id_commandebooks`,
+  db.query(`SELECT * FROM commande,books where commande.etat='Commande en cours de Traitement' AND commande.id_Commande=books.id_commandebooks OR commande.etat='Commande remis au livreur' AND commande.id_Commande=books.id_commandebooks AND commande.id_livreur = 34`,
       (err, result) => {
       // user does not exists
           if (err) {
