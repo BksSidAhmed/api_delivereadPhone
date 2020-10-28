@@ -88,43 +88,43 @@ router.post('/sign-up/livreur', userMiddleware.validateRegister, (req, res, next
     );
 });
 
-// router.post('/sign-up/admin', userMiddleware.validateRegister, (req, res, next) => {
-//   db.query(
-//       `SELECT * FROM user WHERE LOWER(login) = LOWER(${db.escape(req.body.login)});`,
-//       (err, result) => {
-//         if (result.length) {
-//           return res.status(409).send({
-//             msg: 'This username is already in use!'
-//           });
-//         } else {
-//           // username is available
-//           bcrypt.hash(req.body.mdp, 10, (err, hash) => {
-//             if (err) {
-//               return res.status(500).send({
-//                 msg: err
-//               });
-//             } else {
-//               // has hashed pw => add to database
-//               db.query(
-//                 `INSERT INTO user (prenom,nom,login,mdp,telephone,email,id_role) VALUES (${db.escape(req.body.prenom)},${db.escape(req.body.nom)},${db.escape(req.body.login)},${db.escape(hash)},${db.escape(req.body.telephone)},${db.escape(req.body.email)}, 1)`,
-//                 (err, result) => {
-//                   if (err) {
-//                     throw err;
-//                     return res.status(400).send({
-//                       msg: err
-//                     });
-//                   }
-//                   return res.status(201).send({
-//                     msg: 'Registered!'
-//                   });
-//                 }
-//               );
-//             }
-//           });
-//         }
-//       }
-//     );
-// });
+router.post('/sign-up/admin', userMiddleware.validateRegister, (req, res, next) => {
+  db.query(
+      `SELECT * FROM user WHERE LOWER(login) = LOWER(${db.escape(req.body.login)});`,
+      (err, result) => {
+        if (result.length) {
+          return res.status(409).send({
+            msg: 'This username is already in use!'
+          });
+        } else {
+          // username is available
+          bcrypt.hash(req.body.mdp, 10, (err, hash) => {
+            if (err) {
+              return res.status(500).send({
+                msg: err
+              });
+            } else {
+              // has hashed pw => add to database
+              db.query(
+                `INSERT INTO user (prenom,nom,login,mdp,telephone,email,id_role) VALUES (${db.escape(req.body.prenom)},${db.escape(req.body.nom)},${db.escape(req.body.login)},${db.escape(hash)},${db.escape(req.body.telephone)},${db.escape(req.body.email)}, 1)`,
+                (err, result) => {
+                  if (err) {
+                    throw err;
+                    return res.status(400).send({
+                      msg: err
+                    });
+                  }
+                  return res.status(201).send({
+                    msg: 'Registered!'
+                  });
+                }
+              );
+            }
+          });
+        }
+      }
+    );
+});
 
 router.post('/login', (req, res, next) => {
   db.query(
@@ -436,7 +436,8 @@ db.query(`SELECT * FROM books where id_book = ${req.params.id}`,
 });
 
 router.get('/booksUser/:id', (req,res,next) => {
-db.query(`Select * from books,user,commande where books.id_commandebooks = commande.id_Commande and commande.id_userscommande = user.id_user and user.id_user = ${req.params.id}`,
+db.query(`Select * from books,user,commande where books.id_commandebooks = commande.id_Commande and commande.id_userscommande = user.id_user and user.id_user = ${req.params.id} and not (commande.etat = "relais")` ,
+
     (err, result) => {
     // user does not exists
         if (err) {
@@ -625,7 +626,7 @@ router.post('/commandeOfLivreur/:idLivreur/:idCommande', (req,res,next) => {
 
 //je choisie cette commande
 router.post('/commandeOfLivreurClient/:idLivreur/:idCommande', (req,res,next) => {
-  db.query(`update commande set etat = 'Phase de lecture' where id_Commande = ${req.params.idCommande}`,
+  db.query(`update commande set etat = 'phase de retour' where id_Commande = ${req.params.idCommande}`,
       (err, result) => {
       // user does not exists
       console.log(result);
@@ -687,8 +688,8 @@ router.post('/commandeOfBookRendu/:idCommande', (req,res,next) => {
 });
 
 //GET
-router.get('/commande/:id', (req,res,next) => {
-  db.query(`Select * from commande where ReferenceBook = ${req.params.id}`,
+router.get('/commande/:reference/:id', (req,res,next) => {
+  db.query(`Select * from commande where ReferenceBook = ${req.params.reference} AND id_userscommande= ${req.params.id} AND not (commande.etat = "relais")`,
       (err, result) => {
       // user does not exists
           if (err) {
@@ -706,11 +707,12 @@ router.get('/commande/:id', (req,res,next) => {
   )
 });
 //Retourner toutes les nouvelles commandes
-router.get('/commandes', (req,res,next) => {
-  db.query(`SELECT * FROM commande,books where commande.etat='Commande en cours de Traitement' AND commande.id_Commande=books.id_commandebooks OR commande.etat='Commande remis au livreur' AND commande.id_Commande=books.id_commandebooks AND commande.id_livreur = 34`,
+router.get('/commandes/:id', (req,res,next) => {
+  db.query(`SELECT * FROM commande,books where commande.etat='Commande en cours de Traitement' AND commande.id_Commande=books.id_commandebooks OR commande.etat='Commande remis au livreur' AND commande.id_Commande=books.id_commandebooks AND commande.id_livreur = ${req.params.id}`,
       (err, result) => {
       // user does not exists
           if (err) {
+            console.log(err)
               throw err;
               return res.status(400).send({
                   msg: err
@@ -727,12 +729,6 @@ router.get('/commandes', (req,res,next) => {
                   book: result
                 })
           ;}
-          // else {
-          //     return res.status(200).send({
-          //     msg: 'Transfert effectué !',
-          //     book: result
-          // });}
-          
       }
   )
 });
@@ -857,4 +853,5 @@ router.get('/userAbonnementget/:id', (req,res,next) => {
       }
   )
 });
+
 module.exports = router;
