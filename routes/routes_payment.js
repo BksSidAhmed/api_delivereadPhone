@@ -42,12 +42,12 @@ router.get('/getSubscription/:id', (req, res) => {
 });
 
 // Del Subscription
-router.delete('/delSubscription/:id', (req, res) => {
-    return stripe.subscriptions.del(
+router.put('/delSubscription/:id', (req, res) => {
+    return stripe.subscriptions.update(
         req.params.id,
+        {cancel_at_period_end: true}
     ).then(result => res.status(200).json(result));    
 });
-
 // create Token
 router.post('/createTokens/', (req, res) => {
     return stripe.tokens.create({
