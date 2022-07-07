@@ -13,7 +13,7 @@
     "express": "^4.17.1",
     "filereader": "^0.10.3",
     "jsonwebtoken": "^8.5.1",
-    "moment": "^2.27.0",
+    "moment": "^2.29.4",
     "mysql": "^2.18.1",
     "stripe": "^8.97.0",
     "uuid": "^8.2.0"
